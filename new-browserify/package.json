@@ -1,0 +1,19 @@
+{
+  "name": "new-browserify",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browserify -t reactify src/app.js > build/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^0.12.1"
+  },
+  "devDependencies": {
+    "reactify": "^0.17.1",
+    "react-tools": "^0.12.1"
+  }
+}
