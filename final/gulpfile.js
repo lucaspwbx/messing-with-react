@@ -15,5 +15,33 @@ gulp.task('open', function() {
   var options = {
     url: 'http://localhost:' + port
   };
-  gulp.src('./app/index.html');
+  gulp.src('./app/index.html')
+  .pipe(open('', options));
 });
+
+gulp.task('connect', function() {
+  connect.server({
+    root: 'app',
+    port: port,
+    livereload: true
+  });
+});
+
+gulp.task('js', function() {
+  gulp.src('./app/dist/**/*.js')
+    .pipe(connect.reload());
+});
+
+gulp.task('html', function() {
+  gulp.src('./app/*.html')
+    .pipe(connect.reload());
+});
+
+gulp.task('watch', function() {
+  gulp.watch('app/dist/js/*.js', ['js']);
+  gulp.watch('app/index.html', ['html']);
+  gulp.watch('app/src/js/**/*.js', ['browserify']);
+});
+
+gulp.task('default', ['browserify']);
+gulp.task('serve', ['browserify', 'connect', 'open', 'watch']);
