@@ -3,42 +3,51 @@ var React = require('react'),
     ShowAddButton = require('./ShowAddButton'),
     FeedForm = require('./FeedForm'),
     FeedList = require('./FeedList'),
-    _       = require('lodash');
+    _       = require('lodash'),
+    Firebase = require('firebase');
 
 var Feed = React.createClass({
+  loadData: function() {
+    var ref = new Firebase('https://gsr-demo.firebaseio-demo.com/feed');
+    ref.on('value', function(snap) {
+      var items = [];
+      var sorted = [];
+
+      snap.forEach(function(itemSnap) {
+        var item = itemSnap.val();
+        item.key = itemSnap.name();
+        items.push(item);
+      });
+
+      sorted = _.sortBy(items, function(item) {
+        return -item.voteCount;
+      });
+
+      this.setState({
+        items: sorted
+      });
+    }.bind(this));
+  },
+
+  componentDidMount: function() {
+    this.loadData();
+  },
+
   getInitialState: function() {
-    var FEED_ITEMS = [
-        { key: '1', title: 'Realtime data!', description: 'Firebase is cool', voteCount: 49 },
-        { key: '2', title: 'Javascript is fun', description: 'Lexical scoping FTW', voteCount: 34 },
-        { key: '3', title: 'Coffee makes you awake', description: 'Drink responsibly', voteCount: 15}
-    ];
     return {
-      items: FEED_ITEMS,
+      items: [],
       formDisplayed: false
     };
   },
 
   onNewItem: function(newItem) {
-    console.log(newItem);
-    var newItems = this.state.items.concat([newItem]);
-    this.setState({
-      items: newItems,
-      formDisplayed: false,
-      key: this.state.items.length
-    });
+    var ref = new Firebase('https://gsr-demo.firebaseio-demo.com/feed');
+    ref.push(newItem);
   },
 
   onVote: function(item) {
-    var items = _.uniq(this.state.items);
-    var index = _.findIndex(items, function(feedItems) {
-      return feedItems.key == item.key;
-    });
-    var oldObj = items[index];
-    var newItems = _.pull(items, oldObj);
-    newItems.push(item);
-    this.setState({
-      items: newItems
-    });
+    var ref = new Firebase('https://gsr-demo.firebaseio-demo.com/feed').child(item.key);
+    ref.update(item);
   },
 
   onToggleForm: function() {
